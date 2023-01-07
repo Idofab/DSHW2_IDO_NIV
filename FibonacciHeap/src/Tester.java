@@ -89,6 +89,7 @@ public class Tester {
 				}
 			}
 		}
+		System.out.println(T2.countersRep());
 	}
 
 	public static void Test3(boolean pr) {
@@ -106,13 +107,14 @@ public class Tester {
 		t.insert(10);
 		System.out.println();
 		t.deleteMin();
-		
-		
-		
+		t.insert(0);
+		t.insert(10);
+		System.out.println(t.countersRep());
 	}
 	public static void main(String[] args) {
 //		Test1(false);
 		Test2(1000);
+		Test3(false);
 		System.out.println("DONE");
 
 	}
