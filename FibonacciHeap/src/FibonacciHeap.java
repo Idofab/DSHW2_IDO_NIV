@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -221,8 +220,10 @@ public class FibonacciHeap {
     * Returns the node of the heap whose key is minimal, or null if the heap is empty.
     *
     */
-    public HeapNode findMin()
-    {
+    public HeapNode findMin() {
+    	if(this.size() == 0) {
+    		return null;
+    	}
     	return this.minNode;
     } 
     
@@ -254,10 +255,15 @@ public class FibonacciHeap {
     * (Note: The size of of the array depends on the maximum order of a tree.)  
     * 
     */
-    public int[] countersRep()
-    {
-    	int[] arr = new int[100];
-        return arr; //	 to be replaced by student code
+    public int[] countersRep() {
+    	int[] arr = new int[(int)(Math.log(this.size()) / Math.log(2))+1];
+    	if(this.size() == 0) {
+    		return arr;
+    	}
+    	for(Map.Entry<HeapNode, Integer> entRoot: RootsbyRank.entrySet()) {
+    		arr[entRoot.getValue()]++;
+    	}
+        return arr;
     }
 	
    /**
@@ -344,7 +350,16 @@ public class FibonacciHeap {
     {    
         int[] arr = new int[100];
         return arr; // should be replaced by student code
-    }    
+    }
+    
+    public HeapNode getFirst() {
+    	if(this.size() == 0) {
+    		return null;
+    	}
+    	return this.first;
+    } 
+
+    
    /**
     * public class HeapNode
     * 
@@ -369,15 +384,31 @@ public class FibonacciHeap {
     	public int getKey() {
     		return this.key;
     	}
-   
-    	Comparator<HeapNode> nodecomp = new Comparator<HeapNode>() { 		
-    		@Override
-    		public int compare(HeapNode N1, HeapNode N2) { 
-    			return Integer.compare(N1.getKey(), N2.getKey());
-    		}
-		};
-		
-		private void setNext(HeapNode N2) {
+    	
+    	public int getRank() {
+    		return this.rank;
+    	}
+    	
+    	public boolean getMarked() {
+    		return this.mark;
+    	}
+    	
+    	public HeapNode getParent() {
+    		return this.parent;
+    	}
+    	
+    	public HeapNode getNext() {
+    		return this.next;
+    	}
+    	
+    	public HeapNode getPrev() {
+    		return this.prev;
+    	}
+    	
+    	public HeapNode getChild() {
+    		return this.child;
+    	}
+    	private void setNext(HeapNode N2) {
 			this.next = N2;
 			N2.prev = this;
 		}
