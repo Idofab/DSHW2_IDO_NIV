@@ -86,7 +86,6 @@ public class FibonacciHeap {
         	HeapNode brotherNode = deleteNodeChild.next;
     		int k =0;
         	while(brotherNode != deleteNodeChild && k < 50) {
-//           	   System.out.print(brotherNode.getKey() + " " + deleteNodeChild.getKey() +  " ");
 
         		brotherNode.parent = null;
         		RootsbyRank.put(brotherNode, brotherNode.rank);
@@ -151,9 +150,6 @@ public class FibonacciHeap {
     			break;
     		}
     	}
-    	if(this.first == null) {
-    		System.out.println("nullllllll");
-    	}
     	
     	HeapNode newOrder=this.first;
     	for (HeapNode n: rankedRoots) {
@@ -167,7 +163,6 @@ public class FibonacciHeap {
     }
         
    public void consolidateRec(HeapNode N1, HeapNode N2, HeapNode[] rankedRoots) {
-//	   System.out.println(N1.getKey() +" "+ N1.rank + " " + N2.getKey() + " "+ N2.rank);
 	   	HeapNode smallNode;
 		HeapNode bigNode;
 		int ogRank = N1.rank;
@@ -192,9 +187,6 @@ public class FibonacciHeap {
 		RootsbyRank.put(smallNode, smallNode.rank);
 		
 		rankedRoots[ogRank]=null;
-	 	if(ogRank == (int)(Math.log(this.size()) / Math.log(2))+2) {
-    		System.out.println("oggg");
-	 	}
 		if (rankedRoots[ogRank+1]==null) {
 			rankedRoots[ogRank+1] = smallNode;
 		}
@@ -204,7 +196,6 @@ public class FibonacciHeap {
    }
     
     public void consolidateRankZero(HeapNode bigNode, HeapNode smallNode) {
-//    	bigNode.prev.setNext(bigNode.next);
     	bigNode.parent = smallNode;
 		smallNode.child = bigNode;
 		bigNode.setNext(bigNode);
@@ -213,7 +204,6 @@ public class FibonacciHeap {
     }
     
     public void consolidateRankNonZero(HeapNode bigNode, HeapNode smallNode) {
-//    	bigNode.prev.setNext(bigNode.next);
     	HeapNode smallNodeChild = smallNode.child;
     	HeapNode smallNodeChildPrev = smallNode.child.prev;
     	
