@@ -1,20 +1,28 @@
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * FibonacciHeap
  *
  * An implementation of a Fibonacci Heap over integers.
  */
-public class FibonacciHeap
-{
-
+public class FibonacciHeap {
+	public int size = 0;
+	public HeapNode minNode;
+	public HashMap<HeapNode, Integer> RootsbyRank = new HashMap<HeapNode, Integer>();
+	public HeapNode first;
+	
    /**
     * public boolean isEmpty()
     *
     * Returns true if and only if the heap is empty.
     *   
     */
-    public boolean isEmpty()
-    {
-    	return false; // should be replaced by student code
+    public boolean isEmpty() {
+    	return this.size() == 0;
     }
 		
    /**
@@ -25,9 +33,27 @@ public class FibonacciHeap
     * 
     * Returns the newly created node.
     */
-    public HeapNode insert(int key)
-    {    
-    	return new HeapNode(key); // should be replaced by student code
+    public HeapNode insert(int key) {    
+    	HeapNode insertNode = new HeapNode(key);
+    	RootsbyRank.put(insertNode, 0);
+    	HeapNode curFirst = this.first;
+    	if(curFirst == null) {
+    		insertNode.setNext(insertNode);
+    		this.minNode = insertNode;
+    	}
+    	else {
+    		curFirst.prev.setNext(insertNode);
+    		insertNode.setNext(curFirst);
+    	}
+
+    	this.first = insertNode;
+    	
+    	if(insertNode.getKey() < minNode.getKey()) {
+    		this.minNode = insertNode;
+    	}
+    	
+    	this.size++;
+    	return insertNode;
     }
 
    /**
@@ -36,12 +62,169 @@ public class FibonacciHeap
     * Deletes the node containing the minimum key.
     *
     */
-    public void deleteMin()
-    {
-     	return; // should be replaced by student code
-     	
-    }
+    public void deleteMin() {
+    	
+    	if(this.size() == 1) {
+    		this.first = null;
+    		this.minNode = null;
+       		this.size--;
+       		this.RootsbyRank = new HashMap<HeapNode, Integer>();
+    		return;
+    	}
+    	
+    	HeapNode deleteNode = this.minNode;
+    	HeapNode deleteNodeChild = deleteNode.child;
+		HeapNode deleteNodePrev = deleteNode.prev;
+		HeapNode deleteNodeNext = deleteNode.next;
 
+//    	If deleteNode has a child put all children in RootsbyRank and update roots conncetion's list
+    	if(deleteNodeChild != null) {
+
+    		deleteNodeChild.parent=null;
+    		RootsbyRank.put(deleteNodeChild, deleteNodeChild.rank);
+    		
+        	HeapNode brotherNode = deleteNodeChild.next;
+    		int k =0;
+        	while(brotherNode != deleteNodeChild && k < 50) {
+//           	   System.out.print(brotherNode.getKey() + " " + deleteNodeChild.getKey() +  " ");
+
+        		brotherNode.parent = null;
+        		RootsbyRank.put(brotherNode, brotherNode.rank);
+        		brotherNode = brotherNode.next;
+        		k++;
+        	}
+
+        	HeapNode deleteNodeChildPrev = deleteNode.child.prev;
+        	deleteNodePrev.setNext(deleteNodeChild);
+        	deleteNodeChildPrev.setNext(deleteNodeNext);
+    	}
+    	
+    	else {
+    		deleteNodePrev.setNext(deleteNodeNext);
+    		}
+    	
+    	if(deleteNode == this.first) {
+    		this.first = deleteNode.next;
+    	}
+    	
+    	RootsbyRank.remove(deleteNode);
+
+    	this.consolidate();
+    	
+    	this.minNode = this.first;
+    	for(Map.Entry<HeapNode, Integer> entRoot: RootsbyRank.entrySet()) {
+    		if(entRoot.getKey().getKey() < this.minNode.getKey()) {
+    			this.minNode = entRoot.getKey();
+    		}
+    	} 
+    	
+    	this.size --;
+    }
+    
+    private void consolidate() {
+    	HeapNode node = this.first; 
+    	
+    	List<HeapNode> origRoots = new ArrayList<HeapNode>();
+    	for(int i=0; i<RootsbyRank.keySet().size(); i++) {
+    		origRoots.add(i, node);
+    		node = node.next;
+    	}    	
+    	HeapNode[] rankedRoots = new HeapNode[(int)(Math.log(this.size()) / Math.log(2))+2];
+
+    	for(HeapNode root: origRoots) {
+    		if (root.parent==null) {
+	    		int ogRank = root.rank;
+	    		HeapNode brother = rankedRoots[ogRank];
+	    		if (brother != null) {
+	    			consolidateRec(root,brother,rankedRoots);
+	    		}
+	    		else {
+	    			rankedRoots[ogRank]=root;
+	    		}	    		
+    		}
+    	}
+    	
+    	this.first=null;
+    	for (HeapNode n: rankedRoots) {
+    		if (n != null) {
+    			this.first=n;
+    			break;
+    		}
+    	}
+    	if(this.first == null) {
+    		System.out.println("nullllllll");
+    	}
+    	
+    	HeapNode newOrder=this.first;
+    	for (HeapNode n: rankedRoots) {
+    		if (n != null) {
+    			newOrder.setNext(n);
+    			newOrder=newOrder.next;
+    		}
+    	}
+    	newOrder.next=this.first;
+    	this.first.prev=newOrder;
+    }
+        
+   public void consolidateRec(HeapNode N1, HeapNode N2, HeapNode[] rankedRoots) {
+//	   System.out.println(N1.getKey() +" "+ N1.rank + " " + N2.getKey() + " "+ N2.rank);
+	   	HeapNode smallNode;
+		HeapNode bigNode;
+		int ogRank = N1.rank;
+
+		if(N1.getKey() < N2.getKey()) {    				
+			smallNode = N1;
+			bigNode = N2;
+		}
+		else {
+			smallNode = N2;
+			bigNode = N1;
+		}
+		
+		if(N1.rank == 0) {
+			consolidateRankZero(bigNode, smallNode);
+		}
+		else {
+			consolidateRankNonZero(bigNode,smallNode);
+		}
+		RootsbyRank.remove(bigNode);
+		RootsbyRank.remove(smallNode);
+		RootsbyRank.put(smallNode, smallNode.rank);
+		
+		rankedRoots[ogRank]=null;
+	 	if(ogRank == (int)(Math.log(this.size()) / Math.log(2))+2) {
+    		System.out.println("oggg");
+	 	}
+		if (rankedRoots[ogRank+1]==null) {
+			rankedRoots[ogRank+1] = smallNode;
+		}
+		else {
+			consolidateRec(smallNode, rankedRoots[ogRank+1], rankedRoots);
+		}
+   }
+    
+    public void consolidateRankZero(HeapNode bigNode, HeapNode smallNode) {
+//    	bigNode.prev.setNext(bigNode.next);
+    	bigNode.parent = smallNode;
+		smallNode.child = bigNode;
+		bigNode.setNext(bigNode);
+		
+		smallNode.rank++;
+    }
+    
+    public void consolidateRankNonZero(HeapNode bigNode, HeapNode smallNode) {
+//    	bigNode.prev.setNext(bigNode.next);
+    	HeapNode smallNodeChild = smallNode.child;
+    	HeapNode smallNodeChildPrev = smallNode.child.prev;
+    	
+    	bigNode.setNext(smallNodeChild);
+    	smallNodeChildPrev.setNext(bigNode);
+    	
+		bigNode.parent = smallNode;
+		smallNode.child = bigNode;	
+		smallNode.rank++;
+    }
+    
    /**
     * public HeapNode findMin()
     *
@@ -50,7 +233,7 @@ public class FibonacciHeap
     */
     public HeapNode findMin()
     {
-    	return new HeapNode(678);// should be replaced by student code
+    	return this.minNode;
     } 
     
    /**
@@ -70,9 +253,8 @@ public class FibonacciHeap
     * Returns the number of elements in the heap.
     *   
     */
-    public int size()
-    {
-    	return -123; // should be replaced by student code
+    public int size() {
+    	return this.size;
     }
     	
     /**
@@ -136,7 +318,7 @@ public class FibonacciHeap
     }
 
    /**
-    * public static int totalLinks() 
+    * public static) int totalLinks() 
     *
     * This static function returns the total number of link operations made during the
     * run-time of the program. A link operation is the operation which gets as input two
@@ -172,8 +354,7 @@ public class FibonacciHeap
     {    
         int[] arr = new int[100];
         return arr; // should be replaced by student code
-    }
-    
+    }    
    /**
     * public class HeapNode
     * 
@@ -184,13 +365,32 @@ public class FibonacciHeap
     public static class HeapNode{
 
     	public int key;
+    	public int rank = 0;
+    	public boolean mark = false;
+    	public HeapNode child = null;
+    	public HeapNode next = null;
+    	public HeapNode prev = null;
+    	public HeapNode parent = null;
 
     	public HeapNode(int key) {
-    		this.key = key;
+    		this.key = key;    		
     	}
 
     	public int getKey() {
     		return this.key;
     	}
+   
+    	Comparator<HeapNode> nodecomp = new Comparator<HeapNode>() { 		
+    		@Override
+    		public int compare(HeapNode N1, HeapNode N2) { 
+    			return Integer.compare(N1.getKey(), N2.getKey());
+    		}
+		};
+		
+		private void setNext(HeapNode N2) {
+			this.next = N2;
+			N2.prev = this;
+		}
     }
 }
+
