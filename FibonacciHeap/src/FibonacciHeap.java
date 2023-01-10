@@ -13,6 +13,7 @@ public class FibonacciHeap {
 	public HeapNode minNode;
 	public HashMap<HeapNode, Integer> RootsbyRank = new HashMap<HeapNode, Integer>();
 	public HeapNode first;
+	public static int marked = 0;
 	
    /**
     * public boolean isEmpty()
@@ -284,9 +285,49 @@ public class FibonacciHeap {
     * Decreases the key of the node x by a non-negative value delta. The structure of the heap should be updated
     * to reflect this change (for example, the cascading cuts procedure should be applied if needed).
     */
-    public void decreaseKey(HeapNode x, int delta)
-    {    
-    	return; // should be replaced by student code
+    public void decreaseKey(HeapNode x, int delta) {
+    	
+    	x.setKey(x.getKey() - delta);
+    	
+    	if((x.getParent() == null) || (x.getKey() > x.getParent().getKey())) {
+    		return;
+    	}
+    	cascadingCut(x);
+ 
+    	return;
+    }
+    
+    public void cut(HeapNode x) {
+    	HeapNode y = x.parent;
+    	x.setParent(null);
+    	RootsbyRank.put(x, x.getRank());
+    	x.setMark(false);
+    	y.rank--;
+    	
+    	if(x.getNext() == x) {
+    		y.setChild(null);
+    	}
+    	else {
+    		y.setChild(x.getNext());
+    		x.getPrev().setNext(x.getNext());
+        	}
+    	this.getFirst().prev.setNext(x);
+		x.setNext(this.getFirst());
+		this.first=x;
+    }
+    
+    public void cascadingCut(HeapNode x) {
+    	HeapNode y = x.parent;
+    	cut(x);
+    	
+    	if( (y!= null) && (y.getParent() != null)) {
+    		if (y.getMarked() == false) {
+    			y.setMark(true);
+    		}
+    		else {
+    			cascadingCut(y);
+    		}
+    	}
     }
 
    /**
@@ -294,9 +335,8 @@ public class FibonacciHeap {
     *
     * This function returns the current number of non-marked items in the heap
     */
-    public int nonMarked() 
-    {    
-        return -232; // should be replaced by student code
+    public int nonMarked() {    
+        return this.size() - marked;
     }
 
    /**
@@ -384,6 +424,9 @@ public class FibonacciHeap {
     	public int getKey() {
     		return this.key;
     	}
+    	public void setKey(int val) {
+    		this.key = val;
+    	}
     	
     	public int getRank() {
     		return this.rank;
@@ -393,8 +436,24 @@ public class FibonacciHeap {
     		return this.mark;
     	}
     	
+    	public void setMark(boolean bool) {
+    		if(this.mark != bool) {
+    			if(bool) {
+    				marked++;
+    			}
+    			else {
+    				marked--;
+    			}
+    		}
+    		this.mark = bool;
+    	}
+    	
     	public HeapNode getParent() {
     		return this.parent;
+    	}
+    	
+    	public void setParent(HeapNode parent) {
+    		this.parent = parent;
     	}
     	
     	public HeapNode getNext() {
@@ -408,6 +467,11 @@ public class FibonacciHeap {
     	public HeapNode getChild() {
     		return this.child;
     	}
+    	
+    	public void setChild(HeapNode child) {
+    		this.child = child;
+    	}
+    	
     	private void setNext(HeapNode N2) {
 			this.next = N2;
 			N2.prev = this;

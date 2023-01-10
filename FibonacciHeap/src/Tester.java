@@ -11,63 +11,54 @@ public class Tester {
 		int[] arr4 = new int[] {17};
 		int del4=1;
 		int[] arr5 = new int[] {19,20,21,22};
-		int del5=2;
-		int[] arr6= new int[] {25};
-		int del6=1;
-		int[] arr7= new int[] {27,28,29,30,31,32,33};
-		int del7=2;
+		int del5=1;
+		
 		
 		FibonacciHeap Test1 = new FibonacciHeap();
 		for(int val: arr1) {
 			Test1.insert(val);
 		}
 		for(int i=0; i<del1; i++) {
-			System.out.println("B" + Test1.findMin().getKey());
 			Test1.deleteMin();
-			System.out.println("F" + Test1.findMin().getKey());
 		}
 		for(int val: arr2) {
 			Test1.insert(val);
 		}
 		for(int i=0; i<del2; i++) {
-			System.out.println("B" + Test1.findMin().getKey());
+
 			Test1.deleteMin();
-			System.out.println("F" + Test1.findMin().getKey());		}
+			}
 		for(int val: arr3) {
 			Test1.insert(val);
 		}
 		for(int i=0; i<del3; i++) {
-			System.out.println("\nB" + Test1.findMin().getKey());
+
 			Test1.deleteMin();
-			System.out.println("F" + Test1.findMin().getKey());		}
+}
 		for(int val: arr4) {
 			Test1.insert(val);
 		}
 		for(int i=0; i<del4; i++) {
-			System.out.println("\nB" + Test1.findMin().getKey());
+
 			Test1.deleteMin();
-			System.out.println("F" + Test1.findMin().getKey());		}
+}
 		for(int val: arr5) {
 			Test1.insert(val);
 		}
 		for(int i=0; i<del5; i++) {
-			System.out.println("\n1B" + Test1.findMin().getKey());
+
 			Test1.deleteMin();
-			System.out.println("F" + Test1.findMin().getKey());		}
-		for(int val: arr6) {
-			Test1.insert(val);
 		}
-		for(int i=0; i<del6; i++) {
-			System.out.println("B" + Test1.findMin().getKey());
-			Test1.deleteMin();
-			System.out.println("F" + Test1.findMin().getKey());		}
-		for(int val: arr7) {
-			Test1.insert(val);
-		}
-		for(int i=0; i<del7; i++) {
-			System.out.println("B" + Test1.findMin().getKey());
-			Test1.deleteMin();
-			System.out.println("F" + Test1.findMin().getKey());		}
+		
+		FibonacciHeap.HeapNode dec1 = Test1.getFirst().getNext().getChild().getChild();
+		FibonacciHeap.HeapNode dec2 = dec1.getNext();
+		System.out.println("dec: "+dec2.getKey());
+		Test1.decreaseKey(dec1, 100);
+		System.out.println("non: "+ Test1.nonMarked() +" "+ Test1.size());
+		Test1.decreaseKey(dec2, 100);
+		System.out.println("dec: "+dec2.getKey());
+		
+		
 	}
 	public static void Test2(int n) {	
 		FibonacciHeap T2 = new FibonacciHeap();
@@ -112,9 +103,9 @@ public class Tester {
 		System.out.println(t.countersRep());
 	}
 	public static void main(String[] args) {
-//		Test1(false);
-		Test2(1000);
-		Test3(false);
+		Test1(false);
+//		Test2(1000);
+//		Test3(false);
 		System.out.println("DONE");
 
 	}
