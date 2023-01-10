@@ -32,7 +32,6 @@ import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -613,6 +612,7 @@ public class TestFibonacciHeap {
         // case 8
         Map<Integer, FibonacciHeap.HeapNode> nodes = testInsertion(
                 heap, 2, 1, 3, 7, 4, 8, 6, 5, 9, 10, 11);
+        System.out.println("0");
         heap.deleteMin();
         assertValidHeap(heap);
         testDeletion(heap, nodes.get(5));
