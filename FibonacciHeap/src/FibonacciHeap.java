@@ -14,6 +14,8 @@ public class FibonacciHeap {
 	public HashMap<HeapNode, Integer> RootsbyRank = new HashMap<HeapNode, Integer>();
 	public HeapNode first;
 	public static int marked = 0;
+	public static int cutsCnt = 0;
+	public static int linksCnt = 0;
 	
    /**
     * public boolean isEmpty()
@@ -36,19 +38,19 @@ public class FibonacciHeap {
     public HeapNode insert(int key) {    
     	HeapNode insertNode = new HeapNode(key);
     	RootsbyRank.put(insertNode, 0);
-    	HeapNode curFirst = this.first;
+    	HeapNode curFirst = this.getFirst();
     	if(curFirst == null) {
     		insertNode.setNext(insertNode);
     		this.minNode = insertNode;
     	}
     	else {
-    		curFirst.prev.setNext(insertNode);
+    		curFirst.getPrev().setNext(insertNode);
     		insertNode.setNext(curFirst);
     	}
 
     	this.first = insertNode;
     	
-    	if(insertNode.getKey() < minNode.getKey()) {
+    	if(insertNode.getKey() < this.minNode.getKey()) {
     		this.minNode = insertNode;
     	}
     	
@@ -73,27 +75,25 @@ public class FibonacciHeap {
     	}
     	
     	HeapNode deleteNode = this.minNode;
-    	HeapNode deleteNodeChild = deleteNode.child;
-		HeapNode deleteNodePrev = deleteNode.prev;
-		HeapNode deleteNodeNext = deleteNode.next;
+    	HeapNode deleteNodeChild = deleteNode.getChild();
+		HeapNode deleteNodePrev = deleteNode.getPrev();
+		HeapNode deleteNodeNext = deleteNode.getNext();
 
 //    	If deleteNode has a child put all children in RootsbyRank and update roots conncetion's list
     	if(deleteNodeChild != null) {
 
-    		deleteNodeChild.parent=null;
-    		RootsbyRank.put(deleteNodeChild, deleteNodeChild.rank);
+    		deleteNodeChild.setParent(null);
+    		RootsbyRank.put(deleteNodeChild, deleteNodeChild.getRank());
     		
-        	HeapNode brotherNode = deleteNodeChild.next;
-    		int k =0;
-        	while(brotherNode != deleteNodeChild && k < 50) {
-
-        		brotherNode.parent = null;
-        		RootsbyRank.put(brotherNode, brotherNode.rank);
-        		brotherNode = brotherNode.next;
-        		k++;
+        	HeapNode brotherNode = deleteNodeChild.getNext();
+    		
+        	while(brotherNode != deleteNodeChild) {
+        		brotherNode.setParent(null);
+        		RootsbyRank.put(brotherNode, brotherNode.getRank());
+        		brotherNode = brotherNode.getNext();
         	}
 
-        	HeapNode deleteNodeChildPrev = deleteNode.child.prev;
+        	HeapNode deleteNodeChildPrev = deleteNode.getChild().getPrev();
         	deleteNodePrev.setNext(deleteNodeChild);
         	deleteNodeChildPrev.setNext(deleteNodeNext);
     	}
@@ -102,8 +102,8 @@ public class FibonacciHeap {
     		deleteNodePrev.setNext(deleteNodeNext);
     		}
     	
-    	if(deleteNode == this.first) {
-    		this.first = deleteNode.next;
+    	if(deleteNode == this.getFirst()) {
+    		this.first = deleteNode.getNext();
     	}
     	
     	RootsbyRank.remove(deleteNode);
@@ -121,18 +121,18 @@ public class FibonacciHeap {
     }
     
     private void consolidate() {
-    	HeapNode node = this.first; 
+    	HeapNode node = this.getFirst(); 
     	
     	List<HeapNode> origRoots = new ArrayList<HeapNode>();
     	for(int i=0; i<RootsbyRank.keySet().size(); i++) {
     		origRoots.add(i, node);
-    		node = node.next;
+    		node = node.getNext();
     	}    	
-    	HeapNode[] rankedRoots = new HeapNode[(int)(Math.log(this.size()) / Math.log(2))+2];
+    	HeapNode[] rankedRoots = new HeapNode[(int)(Math.log(this.size()) / Math.log(2)) + 2];
 
     	for(HeapNode root: origRoots) {
-    		if (root.parent==null) {
-	    		int ogRank = root.rank;
+    		if (root.getParent() == null) {
+	    		int ogRank = root.getRank();
 	    		HeapNode brother = rankedRoots[ogRank];
 	    		if (brother != null) {
 	    			consolidateRec(root,brother,rankedRoots);
@@ -146,7 +146,7 @@ public class FibonacciHeap {
     	this.first=null;
     	for (HeapNode n: rankedRoots) {
     		if (n != null) {
-    			this.first=n;
+    			this.first = n;
     			break;
     		}
     	}
@@ -155,14 +155,14 @@ public class FibonacciHeap {
     	for (HeapNode n: rankedRoots) {
     		if (n != null) {
     			newOrder.setNext(n);
-    			newOrder=newOrder.next;
+    			newOrder=newOrder.getNext();
     		}
     	}
-    	newOrder.next=this.first;
-    	this.first.prev=newOrder;
+    	newOrder.setNext(this.first);
     }
         
    public void consolidateRec(HeapNode N1, HeapNode N2, HeapNode[] rankedRoots) {
+	   linksCnt++;
 	   	HeapNode smallNode;
 		HeapNode bigNode;
 		int ogRank = N1.rank;
@@ -184,7 +184,7 @@ public class FibonacciHeap {
 		}
 		RootsbyRank.remove(bigNode);
 		RootsbyRank.remove(smallNode);
-		RootsbyRank.put(smallNode, smallNode.rank);
+		RootsbyRank.put(smallNode, smallNode.getRank());
 		
 		rankedRoots[ogRank]=null;
 		if (rankedRoots[ogRank+1]==null) {
@@ -204,8 +204,8 @@ public class FibonacciHeap {
     }
     
     public void consolidateRankNonZero(HeapNode bigNode, HeapNode smallNode) {
-    	HeapNode smallNodeChild = smallNode.child;
-    	HeapNode smallNodeChildPrev = smallNode.child.prev;
+    	HeapNode smallNodeChild = smallNode.getChild();
+    	HeapNode smallNodeChildPrev = smallNode.getChild().getPrev();
     	
     	bigNode.setNext(smallNodeChild);
     	smallNodeChildPrev.setNext(bigNode);
@@ -274,9 +274,10 @@ public class FibonacciHeap {
 	* It is assumed that x indeed belongs to the heap.
     *
     */
-    public void delete(HeapNode x) 
-    {    
-    	return; // should be replaced by student code
+    public void delete(HeapNode x) {
+    	this.decreaseKey(x, x.getKey() + Math.abs(this.minNode.getKey()) + 1);
+    	this.deleteMin();
+    	return;
     }
 
    /**
@@ -288,6 +289,9 @@ public class FibonacciHeap {
     public void decreaseKey(HeapNode x, int delta) {
     	
     	x.setKey(x.getKey() - delta);
+    	if(x.getKey() < this.findMin().getKey()) {
+    		this.minNode = x;
+    	}
     	
     	if((x.getParent() == null) || (x.getKey() > x.getParent().getKey())) {
     		return;
@@ -298,6 +302,7 @@ public class FibonacciHeap {
     }
     
     public void cut(HeapNode x) {
+    	cutsCnt++;
     	HeapNode y = x.parent;
     	x.setParent(null);
     	RootsbyRank.put(x, x.getRank());
@@ -348,9 +353,8 @@ public class FibonacciHeap {
     * In words: The potential equals to the number of trees in the heap
     * plus twice the number of marked nodes in the heap. 
     */
-    public int potential() 
-    {    
-        return -234; // should be replaced by student code
+    public int potential() {
+        return RootsbyRank.size() + 2*marked;
     }
 
    /**
@@ -361,9 +365,8 @@ public class FibonacciHeap {
     * trees of the same rank, and generates a tree of rank bigger by one, by hanging the
     * tree which has larger value in its root under the other tree.
     */
-    public static int totalLinks()
-    {    
-    	return -345; // should be replaced by student code
+    public static int totalLinks() {
+    	return linksCnt;
     }
 
    /**
@@ -373,9 +376,8 @@ public class FibonacciHeap {
     * run-time of the program. A cut operation is the operation which disconnects a subtree
     * from its parent (during decreaseKey/delete methods). 
     */
-    public static int totalCuts()
-    {    
-    	return -456; // should be replaced by student code
+    public static int totalCuts() {
+    	return cutsCnt;
     }
 
      /**
