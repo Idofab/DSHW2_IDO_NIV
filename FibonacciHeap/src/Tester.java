@@ -50,15 +50,6 @@ public class Tester {
 			Test1.deleteMin();
 		}
 		
-		FibonacciHeap.HeapNode dec1 = Test1.getFirst().getNext().getChild().getChild();
-		FibonacciHeap.HeapNode dec2 = dec1.getNext();
-		System.out.println("dec: "+dec2.getKey());
-		Test1.decreaseKey(dec1, 100);
-		System.out.println("non: "+ Test1.nonMarked() +" "+ Test1.size());
-		Test1.decreaseKey(dec2, 100);
-		System.out.println("dec: "+dec2.getKey());
-		
-		
 	}
 	public static void Test2(int n) {	
 		FibonacciHeap T2 = new FibonacciHeap();
@@ -83,29 +74,29 @@ public class Tester {
 		System.out.println(T2.countersRep());
 	}
 
-	public static void Test3(boolean pr) {
+	public static void Test3() {
 		FibonacciHeap t = new FibonacciHeap();
 		t.insert(0);
 		t.insert(1);
-		t.deleteMin();
+		t.insert(2);
 		t.insert(3);
-		t.deleteMin();
+		t.insert(4);
 		t.insert(5);
-		t.deleteMin();
+		t.insert(6);
 		t.insert(7);
 		t.insert(8);
-		t.insert(9);
-		t.insert(10);
-		System.out.println();
 		t.deleteMin();
-		t.insert(0);
-		t.insert(10);
-		System.out.println(t.countersRep());
+		
+		t.delete(t.first.getChild().getChild().getNext());
+		t.delete(t.first.getChild().getNext().getChild());
+		t.delete(t.first.getChild().getNext().getNext());
+		t.delete(t.first.getChild().getNext());
+		System.out.println(t);
 	}
 	public static void main(String[] args) {
 		Test1(false);
 //		Test2(1000);
-//		Test3(false);
+		Test3();
 		System.out.println("DONE");
 	}
 
