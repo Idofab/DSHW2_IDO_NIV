@@ -6,13 +6,11 @@
 public class FibonacciHeap {
 	public int size = 0;
 	public HeapNode minNode;
-//	public HashMap<HeapNode, Integer> RootsbyRank = new HashMap<HeapNode, Integer>();
 	public int numOfRoots = 0;
 	public HeapNode first;
 	public static int marked = 0;
 	public static int cutsCnt = 0;
 	public static int linksCnt = 0;
-	
 	
    /**
     * public boolean isEmpty()
@@ -33,7 +31,7 @@ public class FibonacciHeap {
     * Returns the newly created node.
     * Complexity = O(1)
     */
-    public HeapNode insert(int key) {    
+    public HeapNode insert(int key) {
     	HeapNode insertNode = new HeapNode(key);
     	numOfRoots++;
     	HeapNode curFirst = this.getFirst();
@@ -99,7 +97,7 @@ public class FibonacciHeap {
     *Complexity = O(n)
     */
     public void deleteMin() {
-    	
+
     	if(this.size() == 1) {
     		this.first = null;
     		this.minNode = null;
@@ -332,11 +330,11 @@ public class FibonacciHeap {
     * Complexity = O(n)
     */
     public int[] countersRep() {
-    	int[] arr = new int[(int)(Math.log(this.size()) / Math.log(2))+1];
     	if(this.size() == 0) {
-    		return arr;
+    		return new int[] {};
     	}
-    	
+    	int[] arr = new int[(int)(Math.log(this.size()) / Math.log(2))+1];
+
     	for(HeapNode root:  this.getRoots()) {
     		arr[root.getRank()]++;
     	}
@@ -363,43 +361,19 @@ public class FibonacciHeap {
     * Complexity = O(n)
     */
     public void decreaseKey(HeapNode x, int delta) {
+
     	x.setKey(x.getKey() - delta);
+    	
     	if(x.getKey() < this.findMin().getKey()) {
     		this.minNode = x;
-    	}
+    		}
     	
-    	if((x.getParent() == null) || (x.getKey() > x.getParent().getKey())) {
-    		return;
+    	if((x.getParent() != null) && (x.getKey() < x.getParent().getKey())) {
+        	HeapNode y = x.getParent();
+    		cut(x);
+        	cascadingCut(y);
+    		}
     	}
-    	cascadingCut(x);
-    	}
-    
-    /**
-     * public void cut(HeapNode x)
-     *
-     * Cuts the insert HeapNode from it's parent and adding it as a root
-     * Complexity = O(1)
-     */
-    public void cut(HeapNode x) {
-    	cutsCnt++;
-    	HeapNode y = x.parent;
-    	x.setParent(null);
-    	numOfRoots++;
-    	
-    	x.setMark(false);
-    	y.rank--;
-
-    	if(x.getNext() == x) {
-    		y.setChild(null);
-    	}
-    	else {
-    		y.setChild(x.getNext());
-    		x.getPrev().setNext(x.getNext());
-        	}
-    	this.getFirst().getPrev().setNext(x);
-		x.setNext(this.getFirst());
-		this.first=x;
-    }
     
     /**
      * public void cascadingCut(HeapNode x)
@@ -407,19 +381,46 @@ public class FibonacciHeap {
      * Complexity = O(n)
      */
     public void cascadingCut(HeapNode x) {
-    	HeapNode y = x.parent;
-    	cut(x);
-    	
-    	if( (y!= null) && (y.getParent() != null)) {
-    		if (y.getMarked() == false) {
-    			y.setMark(true);
+    	if(x.getParent() != null) {
+    		if (x.getMarked()) {
+            	HeapNode y = x.getParent();
+    	    	cut(x);
+    			cascadingCut(y);
     		}
     		else {
-    			cascadingCut(y);
+    			x.setMark(true);
     		}
     	}
     }
+    
+    /**
+     * public void cut(HeapNode x)
+     * Cuts the insert HeapNode from it's parent and adding it as a root
+     * Complexity = O(1)
+     */
+    public void cut(HeapNode x) {
+    	cutsCnt++;
+    	
+    	HeapNode y = x.parent;
+    	x.setParent(null);
+    	numOfRoots++;
+    	y.rank--;
+    	
+    	x.setMark(false);
 
+    	if(x.getNext() == x) {
+    		y.setChild(null);
+    		}
+    	else {
+    		y.setChild(x.getNext());
+    		x.getPrev().setNext(x.getNext());
+    		}
+    	
+    	this.getFirst().getPrev().setNext(x);
+		x.setNext(this.getFirst());
+		
+		this.first=x;
+    }
    /**
     * public int nonMarked() 
     *
@@ -441,6 +442,9 @@ public class FibonacciHeap {
     * Complexity = O(1)
     */
     public int potential() {
+    	if(this.size() == 0) {
+    		return 0;
+    	}
         return numOfRoots + 2*marked;
     }
 
@@ -479,6 +483,10 @@ public class FibonacciHeap {
     * Complexity = O(k*deg(H))
     */
     public static int[] kMin(FibonacciHeap H, int k) {
+    	
+    	if(k == 0) {
+    		return new int[] {};
+    	}
         int[] arr = new int[k];
         
         FibonacciHeap selectMin = new FibonacciHeap();
@@ -554,14 +562,15 @@ public class FibonacciHeap {
     	
     	public void setMark(boolean bool) {
     		if(this.mark != bool) {
-    			if(bool) {
+    			if(bool && (this.getParent() != null)) {
     				marked++;
+            		this.mark = bool;
     			}
     			else {
     				marked--;
+            		this.mark = bool;
     			}
     		}
-    		this.mark = bool;
     	}
     	
     	public HeapNode getParent() {
