@@ -103,6 +103,7 @@ public class FibonacciHeap {
     		this.minNode = null;
        		this.size--;
        		this.numOfRoots--;
+       		marked = 0;
     		return;
     	}
     	
@@ -113,13 +114,14 @@ public class FibonacciHeap {
 
 //    	If deleteNode has a child update number of roots and roots connections
     	if(deleteNodeChild != null) {
-
+    		deleteNodeChild.setMark(false);
     		deleteNodeChild.setParent(null);
     		numOfRoots++;
     		
         	HeapNode brotherNode = deleteNodeChild.getNext();
     		
         	while(brotherNode != deleteNodeChild) {
+        		brotherNode.setMark(false);
         		brotherNode.setParent(null);
         		numOfRoots++;
         		brotherNode = brotherNode.getNext();
@@ -201,7 +203,7 @@ public class FibonacciHeap {
     */
     
     private void consolidateRec(HeapNode N1, HeapNode N2, HeapNode[] rankedRoots) {
-	   linksCnt++;
+    	linksCnt++;
 	   	HeapNode smallNode;
 		HeapNode bigNode;
 		int ogRank = N1.rank;
@@ -402,12 +404,12 @@ public class FibonacciHeap {
     	cutsCnt++;
     	
     	HeapNode y = x.parent;
+    	x.setMark(false);
     	x.setParent(null);
     	numOfRoots++;
     	y.rank--;
     	
-    	x.setMark(false);
-
+    	
     	if(x.getNext() == x) {
     		y.setChild(null);
     		}
@@ -482,8 +484,7 @@ public class FibonacciHeap {
     * ###CRITICAL### : you are NOT allowed to change H.
     * Complexity = O(k*deg(H))
     */
-    public static int[] kMin(FibonacciHeap H, int k) {
-    	
+    public static int[] kMin(FibonacciHeap H, int k) {	
     	if(k == 0) {
     		return new int[] {};
     	}
@@ -566,11 +567,19 @@ public class FibonacciHeap {
     				marked++;
             		this.mark = bool;
     			}
-    			else {
+    			else if (!bool){
     				marked--;
             		this.mark = bool;
     			}
     		}
+//    		if(this.mark == false && this.parent != null && bool) {
+//    			this.mark = true;
+//    			marked++;
+//    		}
+//    		else if(this.mark == true && !bool) {
+//    			this.mark = false;
+//    			marked--;
+//    		}
     	}
     	
     	public HeapNode getParent() {
