@@ -408,15 +408,7 @@ public class TestFibonacciHeap {
         assertNull(min.getParent());
 
         int numberOfTrees = assertValidHeapRoots(heap, this.uniqueValues);
-        int numberOfMarked = assertValidHeapNodes(heap);
-        
-        if(numberOfTrees + numberOfMarked * 2 != heap.potential()) {
-        	System.out.println("M " + numberOfMarked + "=" + FibonacciHeap.marked);
-//        	System.out.println("T " +numberOfTrees + "=" + heap.numOfRoots);
-
-        }
-        
-        
+        int numberOfMarked = assertValidHeapNodes(heap);        
         assertEquals(numberOfTrees + numberOfMarked * 2, heap.potential());
     }
 
@@ -832,7 +824,7 @@ public class TestFibonacciHeap {
     }
 
 
-    //@Disabled // Same value insertion is not supported in our version
+    @Disabled // Same value insertion is not supported in our version
     @Tag("DuplicateValues")
     @Test
     @Order(9000)
@@ -997,7 +989,7 @@ public class TestFibonacciHeap {
         assertTrue(heap.isEmpty());
     }
 
-    //@Disabled // Same value insertion is not supported in our version
+    @Disabled // Same value insertion is not supported in our version
     @Tag("DuplicateValues")
     @Test
     @Order(235)
@@ -1114,7 +1106,7 @@ public class TestFibonacciHeap {
         assertEquals(3, heap.potential());
         assertEquals(0, FibonacciHeap.totalCuts() - cuts);
         assertEquals(0, FibonacciHeap.totalLinks() - links);
-        assertTrue(Arrays.equals(new int[] { 3 }, heap.countersRep()));
+        assertTrue(Arrays.equals(new int[] { 3}, heap.countersRep()));
     }
 
     @Test
@@ -1189,7 +1181,7 @@ public class TestFibonacciHeap {
         assertTrue(Arrays.equals(new int[] { 1, 0, 1 }, heap.countersRep()));
     }
 
-    //@Disabled // Same value insertion is not supported in our version
+    @Disabled // Same value insertion is not supported in our version
     @Tag("DuplicateValues")
     @Test
     @Order(2)
@@ -1240,7 +1232,7 @@ public class TestFibonacciHeap {
         assertEquals(1, heap.potential());
     }
 
-    //@Disabled // Same value insertion is not supported in our version
+    @Disabled // Same value insertion is not supported in our version
     @Tag("DuplicateValues")
     @Tag("NoCompare") // Test uses Collections.shuffle
     @Test

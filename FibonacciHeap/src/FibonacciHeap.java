@@ -4,13 +4,15 @@
  * An implementation of a Fibonacci Heap over integers.
  */
 public class FibonacciHeap {
+	public static int cutsCnt = 0;
+	public static int linksCnt = 0;
+	
 	public int size = 0;
 	public HeapNode minNode;
 	public int numOfRoots = 0;
 	public HeapNode first;
-	public static int marked = 0;
-	public static int cutsCnt = 0;
-	public static int linksCnt = 0;
+	public int marked = 0;
+
 	
    /**
     * public boolean isEmpty()
@@ -114,6 +116,9 @@ public class FibonacciHeap {
 
 //    	If deleteNode has a child update number of roots and roots connections
     	if(deleteNodeChild != null) {
+    		if(deleteNodeChild.getMarked()) {
+    			this.marked--;
+    		}
     		deleteNodeChild.setMark(false);
     		deleteNodeChild.setParent(null);
     		numOfRoots++;
@@ -121,6 +126,9 @@ public class FibonacciHeap {
         	HeapNode brotherNode = deleteNodeChild.getNext();
     		
         	while(brotherNode != deleteNodeChild) {
+        		if(brotherNode.getMarked()) {
+        			this.marked--;
+        		}
         		brotherNode.setMark(false);
         		brotherNode.setParent(null);
         		numOfRoots++;
@@ -130,15 +138,19 @@ public class FibonacciHeap {
         	HeapNode deleteNodeChildPrev = deleteNode.getChild().getPrev();
         	deleteNodePrev.setNext(deleteNodeChild);
         	deleteNodeChildPrev.setNext(deleteNodeNext);
+    		if(deleteNode == this.getFirst()) {
+        		this.first = deleteNode.getChild();
+        		}
     	}
     	
     	else {
     		deleteNodePrev.setNext(deleteNodeNext);
+    		if(deleteNode == this.getFirst()) {
+        		this.first = deleteNode.getNext();
+        		}
     		}
     	
-    	if(deleteNode == this.getFirst()) {
-    		this.first = deleteNode.getNext();
-    	}
+    	
     	
     	numOfRoots--;
 
@@ -302,16 +314,30 @@ public class FibonacciHeap {
     * Complexity = O(1)
     */
     public void meld (FibonacciHeap heap2) {
-    	HeapNode heap2last = heap2.getFirst().getPrev();
+    	if(heap2.size() == 0) {
+    		return;
+    	}
+    	
+    	if(this.size() == 0) {
+    		this.size = heap2.size();
+    		this.first = heap2.getFirst();
+    		this.minNode = heap2.findMin();
+    		this.marked = heap2.marked;
+    		this.numOfRoots = heap2.numOfRoots;
+    		return;
+    	}
+    	
+    	HeapNode heap2lastNode = heap2.getFirst().getPrev();
     	this.getFirst().getPrev().setNext(heap2.getFirst());
-    	heap2last.setNext(this.getFirst());
+    	heap2lastNode.setNext(this.getFirst());
     	
     	if(heap2.findMin().getKey() < this.findMin().getKey()) {
     		this.minNode = heap2.findMin();
     	}
     	
     	this.size += heap2.size();    	
-    	numOfRoots += heap2.numOfRoots;
+    	this.numOfRoots += heap2.numOfRoots;
+    	this.marked += heap2.marked;
     }
 
    /**
@@ -335,12 +361,17 @@ public class FibonacciHeap {
     	if(this.size() == 0) {
     		return new int[] {};
     	}
-    	int[] arr = new int[(int)(Math.log(this.size()) / Math.log(2))+1];
-
+    	int maxRank = 0;
+    	for(HeapNode root:  this.getRoots()) {
+    		if(root.getRank() > maxRank) {
+    			maxRank = root.getRank();
+    		}
+    	}
+    	int[] arr = new int[maxRank+1];
     	for(HeapNode root:  this.getRoots()) {
     		arr[root.getRank()]++;
     	}
-        return arr;
+    	return arr;
     }
 	
    /**
@@ -351,7 +382,7 @@ public class FibonacciHeap {
     * Complexity = O(n)
     */
     public void delete(HeapNode x) {
-    	this.decreaseKey(x, x.getKey() + Math.abs(this.minNode.getKey()) + 1);
+    	this.decreaseKey(x, x.getKey() - (Integer.MIN_VALUE));
     	this.deleteMin();
     	}
 
@@ -391,6 +422,7 @@ public class FibonacciHeap {
     		}
     		else {
     			x.setMark(true);
+    			this.marked++;
     		}
     	}
     }
@@ -404,6 +436,9 @@ public class FibonacciHeap {
     	cutsCnt++;
     	
     	HeapNode y = x.parent;
+    	if(x.getMarked()) {
+    		this.marked--;
+    	}
     	x.setMark(false);
     	x.setParent(null);
     	numOfRoots++;
@@ -562,24 +597,7 @@ public class FibonacciHeap {
     	}
     	
     	public void setMark(boolean bool) {
-    		if(this.mark != bool) {
-    			if(bool && (this.getParent() != null)) {
-    				marked++;
-            		this.mark = bool;
-    			}
-    			else if (!bool){
-    				marked--;
-            		this.mark = bool;
-    			}
-    		}
-//    		if(this.mark == false && this.parent != null && bool) {
-//    			this.mark = true;
-//    			marked++;
-//    		}
-//    		else if(this.mark == true && !bool) {
-//    			this.mark = false;
-//    			marked--;
-//    		}
+    		this.mark = bool;
     	}
     	
     	public HeapNode getParent() {
