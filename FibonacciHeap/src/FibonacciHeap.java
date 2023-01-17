@@ -449,7 +449,9 @@ public class FibonacciHeap {
     		y.setChild(null);
     		}
     	else {
-    		y.setChild(x.getNext());
+    		if(y.getChild() == x) {
+    			y.setChild(x.getNext());
+    		}
     		x.getPrev().setNext(x.getNext());
     		}
     	

@@ -1,24 +1,27 @@
 public class Theoretical {
 	
 	public static void q1(int j) {
+		
 		long startTime = System.currentTimeMillis();
+		
 		int m = (int) Math.pow(2, j);
+		
 		FibonacciHeap fibHeap = new FibonacciHeap();
 		FibonacciHeap.HeapNode[] insertNodes = new FibonacciHeap.HeapNode[m+1];
 		for(int k=m-1; k>=-1; k--) {
 			insertNodes[k+1] = fibHeap.insert(k);
 		}
 		fibHeap.deleteMin();
-		for(int i=j; i>0; i--) {
+		for(int i=j; i>=1; i--) {
 			fibHeap.decreaseKey(insertNodes[(int) (m-Math.pow(2, i) + 2)], m+1);
 			}
 
-//		fibHeap.decreaseKey(insertNodes[m-2+1], m+1);
+		fibHeap.decreaseKey(insertNodes[m-2+1], m+1);
 		
 		long endTime   = System.currentTimeMillis();
 		long totalTime = endTime - startTime;
 		
-		System.out.println("\nm=" + m +" Total time: " + totalTime);
+		System.out.println("m=" + m +" Total time: " + totalTime);
 		System.out.println("m=" + m +" Total links: " + FibonacciHeap.totalLinks());
 		System.out.println("m=" + m +" Total cuts: " + FibonacciHeap.totalCuts());
 		System.out.println("m=" + m +" Total potential: " + fibHeap.potential());
@@ -40,23 +43,26 @@ public class Theoretical {
 		long endTime   = System.currentTimeMillis();
 		long totalTime = endTime - startTime;
 		
-		System.out.println("\nm=" + m +" Total time: " + totalTime);
+		System.out.println("m=" + m +" Total time: " + totalTime);
 		System.out.println("m=" + m +" Total links: " + FibonacciHeap.totalLinks());
 		System.out.println("m=" + m +" Total cuts: " + FibonacciHeap.totalCuts());
 		System.out.println("m=" + m +" Total potential: " + fibHeap.potential());
 	}
+	
 	public static void main(String[] args) {
-//		q1(3);
+//		q1(4);
 //		q1(5);
 //		q1(10);
-		q1(15);
+//		q1(15);
 //		q1(20);
 		
+		q2(12);
 //		q2(6);
 //		q2(8);
 //		q2(10);
 //		q2(12);
 //		q2(14);
+		
 	}
 
 }
