@@ -9,8 +9,8 @@ public class FibonacciHeap {
 	
 	public int size = 0;
 	public HeapNode minNode;
-	public int numOfRoots = 0;
 	public HeapNode first;
+	public int numOfRoots = 0;
 	public int marked = 0;
 
 	
@@ -37,21 +37,19 @@ public class FibonacciHeap {
     	HeapNode insertNode = new HeapNode(key);
     	numOfRoots++;
     	HeapNode curFirst = this.getFirst();
-    	if(curFirst == null) {
+    	if(this.isEmpty()) {
     		insertNode.setNext(insertNode);
     		this.minNode = insertNode;
     	}
     	else {
     		curFirst.getPrev().setNext(insertNode);
     		insertNode.setNext(curFirst);
+        	if(insertNode.getKey() < this.minNode.getKey()) {
+        		this.minNode = insertNode;
+        	}
     	}
 
-    	this.first = insertNode;
-    	
-    	if(insertNode.getKey() < this.minNode.getKey()) {
-    		this.minNode = insertNode;
-    	}
-    	
+    	this.first = insertNode;    	
     	this.size++;
     	return insertNode;
     }
@@ -150,8 +148,6 @@ public class FibonacciHeap {
         		}
     		}
     	
-    	
-    	
     	numOfRoots--;
 
     	this.consolidate();
@@ -211,7 +207,7 @@ public class FibonacciHeap {
     /*
      *private void consolidateRec(HeapNode N1, HeapNode N2, HeapNode[] rankedRoots)
     * Consolidate recursive function the tree roots after deleteMin() by rank
-    * Complexity = O(n)
+    * Complexity = O(log(n))
     */
     
     private void consolidateRec(HeapNode N1, HeapNode N2, HeapNode[] rankedRoots) {
@@ -451,7 +447,7 @@ public class FibonacciHeap {
     	else {
     		if(y.getChild() == x) {
     			y.setChild(x.getNext());
-    		}
+    			}
     		x.getPrev().setNext(x.getNext());
     		}
     	
@@ -521,32 +517,43 @@ public class FibonacciHeap {
     * ###CRITICAL### : you are NOT allowed to change H.
     * Complexity = O(k*deg(H))
     */
-    public static int[] kMin(FibonacciHeap H, int k) {	
+    public static int[] kMin(FibonacciHeap H, int k) {
+    	int insertCnt = 0;
     	if(k == 0) {
     		return new int[] {};
     	}
+    	
+    	if(k > H.size()) {
+    		k=H.size();
+    	}
+    	
         int[] arr = new int[k];
         
         FibonacciHeap selectMin = new FibonacciHeap();
         HeapNode minNode;
         
         selectMin.insert(H.getFirst());
+        insertCnt++;
         
         for(int i=0; i<k; i++) {
         	minNode = selectMin.findMin();
         	arr[i] = minNode.getKey();
+        	System.out.println("DELETE: " + selectMin.numOfRoots);
         	selectMin.deleteMin();
 
         	HeapNode minNodeChild = minNode.linkNode.getChild();
         	if(minNodeChild != null) {
         		selectMin.insert(minNodeChild);
+        		insertCnt++;
         		HeapNode minNodeChildBrother = minNodeChild.getNext();
 	        	while(minNodeChild != minNodeChildBrother) {
 	        		selectMin.insert(minNodeChildBrother);
+	        		insertCnt++;
 	        		minNodeChildBrother = minNodeChildBrother.getNext();
 	        	}
         	}
         }
+        System.out.println("INSERT: " + insertCnt);
         return arr;
     }
     /**
@@ -586,6 +593,7 @@ public class FibonacciHeap {
     	public int getKey() {
     		return this.key;
     	}
+    	
     	public void setKey(int val) {
     		this.key = val;
     	}
