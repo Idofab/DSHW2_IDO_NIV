@@ -518,7 +518,6 @@ public class FibonacciHeap {
     * Complexity = O(k*deg(H))
     */
     public static int[] kMin(FibonacciHeap H, int k) {
-    	int insertCnt = 0;
     	if(k == 0) {
     		return new int[] {};
     	}
@@ -533,27 +532,22 @@ public class FibonacciHeap {
         HeapNode minNode;
         
         selectMin.insert(H.getFirst());
-        insertCnt++;
         
         for(int i=0; i<k; i++) {
         	minNode = selectMin.findMin();
         	arr[i] = minNode.getKey();
-        	System.out.println("DELETE: " + selectMin.numOfRoots);
         	selectMin.deleteMin();
 
         	HeapNode minNodeChild = minNode.linkNode.getChild();
         	if(minNodeChild != null) {
         		selectMin.insert(minNodeChild);
-        		insertCnt++;
         		HeapNode minNodeChildBrother = minNodeChild.getNext();
 	        	while(minNodeChild != minNodeChildBrother) {
 	        		selectMin.insert(minNodeChildBrother);
-	        		insertCnt++;
 	        		minNodeChildBrother = minNodeChildBrother.getNext();
 	        	}
         	}
         }
-        System.out.println("INSERT: " + insertCnt);
         return arr;
     }
     /**
